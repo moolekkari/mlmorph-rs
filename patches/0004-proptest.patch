@@ -1,0 +1,23 @@
+From 821a42cf7ecb8270a15873bd2719b85586f69bd7 Mon Sep 17 00:00:00 2001
+From: mlmorph-rs <mlmorph-rs@localhost>
+Date: Wed, 11 Nov 2026 15:28:51 +0530
+Subject: [PATCH] Add proptest for backend and public API robustness tests
+
+---
+ Cargo.toml | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index d6bc09a..b3d904e 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -34,3 +34,6 @@ required-features = ["cli"]
+ regex = "1.0"
+ lazy_static = "1.5.0"
+ clap = { version = "4.0", features = ["derive"], optional = true }
++
++[dev-dependencies]
++proptest = { version = "=1.9.0", default-features = false, features = ["std"] }
+-- 
+2.56.0
+

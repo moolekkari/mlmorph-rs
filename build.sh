@@ -9,7 +9,7 @@ grammar_dir=$(mktemp -d "$PWD/build/grammar.XXXXXX")
 git -C upstream archive HEAD | tar -x -C "$grammar_dir"
 make -C "$grammar_dir" malayalam.a > build/grammar.log 2>&1
 fst-print "$grammar_dir/malayalam.a" > build/malayalam.att
-cargo test --offline
+cargo test
 cargo clippy --offline --all-targets -- -D warnings
 cargo build --release --offline
 target/release/att2bin build/malayalam.att build/malayalam.bin

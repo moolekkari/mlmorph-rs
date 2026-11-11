@@ -317,34 +317,22 @@ mod tests {
         assert!(Transducer::from_bytes(&invalid).is_err());
     }
 
-    #[test]
-    fn arbitrary_bytes_and_strings_do_not_panic() {
-        // Deterministic generated properties; no unapproved test dependency.
-        let mut seed = 0x5eed_u64;
-        let mut next = || {
-            seed ^= seed << 13;
-            seed ^= seed >> 7;
-            seed ^= seed << 17;
-            seed
-        };
-        let valid = fixture();
-        let fst = Transducer::from_bytes(&valid).unwrap();
-        for _ in 0..10_000 {
-            let len = (next() % 256) as usize;
-            let bytes: Vec<u8> = (0..len).map(|_| next() as u8).collect();
+    proptest::proptest! {
+        #![proptest_config(proptest::test_runner::Config::with_cases(10_000))]
+
+        #[test]
+        fn arbitrary_bytes_never_panic(bytes in proptest::collection::vec(proptest::prelude::any::<u8>(), 0..4096)) {
             let _ = Transducer::from_bytes(&bytes);
-            let mut mutated = valid.clone();
-            let index = next() as usize % mutated.len();
-            mutated[index] = next() as u8;
-            if let Ok(parsed) = Transducer::from_bytes(&mutated) {
-                let _ = parsed.analyse("a");
-                let _ = parsed.generate("a<n>");
+        }
+
+        #[test]
+        fn mutated_valid_data_never_panics(edits in proptest::collection::vec((0..fixture().len(), proptest::prelude::any::<u8>()), 1..8)) {
+            let mut bytes = fixture();
+            for (index, value) in edits { bytes[index] = value; }
+            if let Ok(fst) = Transducer::from_bytes(&bytes) {
+                let _ = fst.analyse("a");
+                let _ = fst.generate("a<n>");
             }
-            let text: String = (0..len)
-                .map(|_| char::from_u32((next() % 0x110000) as u32).unwrap_or('\u{fffd}'))
-                .collect();
-            let _ = fst.analyse(&text);
-            let _ = fst.generate(&text);
         }
     }
 

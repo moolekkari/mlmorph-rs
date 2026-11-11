@@ -1,4 +1,5 @@
 use mlmorph::{Analyser, Generator, check_foreign_word, normalize};
+use proptest::strategy::Strategy;
 
 #[test]
 fn public_api_and_shared_loader() {
@@ -57,33 +58,21 @@ fn public_api_and_shared_loader() {
     });
 }
 
-#[test]
-fn generated_unicode_inputs_never_panic() {
-    let analyser = Analyser::new().unwrap();
-    let generator = Generator::new().unwrap();
-    let alphabet: Vec<_> = "അആഇഉഎകചതനമരലവംാിു്<>:-\u{200c}\u{200d}".chars().collect();
-    let mut seed = 42u64;
-    let mut next = || {
-        seed ^= seed << 13;
-        seed ^= seed >> 7;
-        seed ^= seed << 17;
-        seed
-    };
-    for _ in 0..10_000 {
-        let len = next() % 128;
-        let text: String = (0..len)
-            .map(|_| {
-                let value = next();
-                if value % 4 == 0 {
-                    char::from_u32((value % 0x110000) as u32).unwrap_or('\u{fffd}')
-                } else {
-                    alphabet[value as usize % alphabet.len()]
-                }
-            })
-            .collect();
+proptest::proptest! {
+    #![proptest_config(proptest::test_runner::Config::with_cases(10_000))]
+
+    #[test]
+    fn arbitrary_unicode_inputs_never_panic(text in proptest::prop_oneof![
+        proptest::collection::vec(proptest::prelude::any::<char>(), 0..128)
+            .prop_map(|chars| chars.into_iter().collect::<String>()),
+        "[\\u{0D00}-\\u{0D7F}\\u{200C}\\u{200D}<>:-]{0,128}",
+    ]) {
+        let analyser = Analyser::new().unwrap();
+        let generator = Generator::new().unwrap();
         let results = analyser.analyse(&text, false, false).unwrap();
-        assert!(results.windows(2).all(|pair| pair[0].0 < pair[1].0));
-        let _ = generator.generate(&text, false).unwrap();
+        proptest::prop_assert!(results.windows(2).all(|pair| pair[0].0 < pair[1].0));
+        let generated = generator.generate(&text, false).unwrap();
+        proptest::prop_assert!(generated.windows(2).all(|pair| pair[0].0 < pair[1].0));
     }
 }
 

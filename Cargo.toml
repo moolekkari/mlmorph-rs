@@ -17,3 +17,6 @@ path = "src/bin/att2bin.rs"
 [[bin]]
 name = "spike-lookup"
 path = "src/bin/spike-lookup.rs"
+
+[dev-dependencies]
+proptest = { version = "=1.9.0", default-features = false, features = ["std"] }

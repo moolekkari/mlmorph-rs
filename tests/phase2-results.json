@@ -270,7 +270,8 @@
   "validation": {
     "nix_build_sh": "passed",
     "minimum_rust": "1.85.0 tested with CLI on and off",
-    "robustness": "dependency-free deterministic generated tests; no property-test crate added",
-    "package_bytes": 5896134
+    "robustness": "proptest 1.9.0 (dev-only): 10,000 cases each for arbitrary bytes, mutations of valid binaries, and Unicode API input; passed CLI on/off on Rust 1.85.0 and 1.91.1",
+    "package_bytes": 5897005,
+    "proptest_followup_scope": "Targeted tests, Clippy, MSRV, and package verification passed; full corpus was not rerun because runtime code is unchanged."
   }
 }
