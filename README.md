@@ -1,53 +1,80 @@
 # mlmorph-rs
 
-An MIT-licensed, pure-Rust lookup backend for [SMC's mlmorph](https://gitlab.com/smc/mlmorph), by Santhosh Thottingal. The upstream grammar and copyright remain upstream's. SFST is used only as a build and test tool; no SFST implementation is linked or shipped in the Rust binaries.
+An MIT-licensed, pure-Rust packaging of [SMC’s mlmorph](https://gitlab.com/smc/mlmorph), by Santhosh Thottingal. SFST compiles the upstream MIT grammar during the build and supplies independent test fixtures. No SFST implementation, C++ library, or compiled SFST transducer is linked or shipped in the crate.
 
-**Status: Phase 1 spike complete.** The root Cargo package is unpublished, has no dependencies, and exposes only the experimental transducer. The source-compatible `mlmorph` library export, patches, release pipeline, and CI belong to Phase 2.
+The exported package is named `mlmorph-rs`; its library remains `mlmorph`. `Analyser`, `Generator`, `normalize`, and `check_foreign_word` retain their public signatures. `create_sfst()` is removed. The default `cli` feature installs the `mlmorph` binary; disable default features for library-only use. This package has not been published.
 
-## Reproduce Phase 1
-
-```sh
-git submodule update --init
-nix develop -c ./spike.sh
+```toml
+mlmorph = { package = "mlmorph-rs", path = "./out", default-features = false }
 ```
 
-The submodule is pinned to `v1.4.3` (`7442b123a8201551b94a9cc2957b9c40699c4c8d`). The script exports a fresh scratch grammar under `build/`, compiles it, dumps it with `fst-print`, converts the dump, and compares the Rust results with `fst-infl`. It tests generation using a separate transducer with its levels switched by `fst-compiler-utf8 -s`. Python uses only its standard library to read JSON, invoke the CLIs, and compare sets; no SFST Python bindings are used.
+```rust
+use mlmorph::Analyser;
+let analyser = Analyser::new()?;
+let analyses = analyser.analyse("കേരളത്തിന്റെ", false, false)?;
+```
 
-`build/` contains generated AT&T, binary, gzip, CLI fixtures (`analyse.tsv` and `generate.tsv`), and `parity.json`. An empty analysis field in a fixture means no results. A repeat run creates another scratch grammar directory. The pinned submodule is never edited, including during grammar compilation.
+The last argument disables the upstream foreign-word fallback, giving strict grammar results. With the fallback enabled, unknown foreign words can return a `<fw>` analysis.
 
-Both `nix develop` and `nix develop .#ci` provide the same environment. Nixpkgs lacks SFST, so the flake builds the CLI tools from the author's official 1.4.7g release archive, verified by SHA-256. Only its Makefile and CLI documentation were inspected; no SFST C++ implementation or crate source was read. Nixpkgs and Rust are pinned by `flake.lock`.
+## Build and verify
 
-## Phase 1 measurements
+```sh
+nix develop -c ./build.sh
+```
+
+This initializes the submodule, builds a fresh scratch copy of the grammar, dumps AT&T text, converts the data, exports the crate to `out/`, and applies the patches with `git apply`. It then runs unit tests, integration tests, doctests, both CLI feature configurations, Clippy with warnings denied, full corpus parity, the benchmark, and `cargo package` verification. The GitHub Actions workflow runs the same command; it never publishes.
+
+The submodule is pinned to `v1.4.3` (`7442b123a8201551b94a9cc2957b9c40699c4c8d`). Nothing is edited in `upstream/`, including generated files. Old exports are preserved under `build/export.*`; the final package is `target/export/package/mlmorph-rs-1.4.3.crate`.
+
+Both the default dev shell and `nix develop .#ci` use the pinned `flake.lock`. Nixpkgs lacks SFST, so the flake builds the CLI tools from the author’s official 1.4.7g archive with a fixed SHA-256. Only its build files and CLI documentation were inspected; no SFST C++ implementation or crate source was read.
+
+Python uses only its standard library to tokenize the corpus, read JSON, run SFST’s CLI, and write fixtures. Its tokenization uses the expressions from upstream’s `utils.py`; normalization and foreign-word detection are loaded directly from the upstream Python files. No SFST Python bindings are needed.
+
+SFST CLI fixtures are generated from the same grammar as the embedded binary. The compact CLI transducer is used for analysis and its switched-level counterpart for generation. Fixtures use `word<TAB>analysis`; an empty second field records no result. The complete coverage fixtures stay under `build/fixtures/coverage` and are excluded from the package. Small JSON-case fixtures are shipped so ordinary `cargo test` runs the upstream expectations and exact-set checks without SFST. The large corpus test is marked ignored for ordinary crate consumers; `build.sh` explicitly runs it in release mode.
+
+For a standalone recheck after building:
+
+```sh
+MLMORPH_COVERAGE_FIXTURES="$PWD/build/fixtures/coverage" cargo test --manifest-path out/Cargo.toml --release --test parity -- --ignored --nocapture
+cargo run --manifest-path out/Cargo.toml --release --example benchmark -- build/fixtures/coverage/1.txt.counts
+```
+
+## Measurements
 
 | Measurement | Result |
 | --- | ---: |
-| States | 606,431 |
-| Arcs | 2,099,458 |
-| Symbols, including epsilon | 207 |
+| States / arcs / symbols including epsilon | 606,431 / 2,099,458 / 207 |
 | Final states | 776 |
-| AT&T bytes | 44,906,468 |
-| Binary bytes | 19,299,644 |
-| Gzip bytes, level 9, pinned Python | 5,846,754 |
-| Exact analysis set parity | 484 / 484 (100%) |
-| Exact generation set parity | 484 / 484 (100%) |
-| Upstream non-skipped expected-result membership, each direction | 474 / 474 |
+| AT&T / binary bytes | 44,906,468 / 19,299,644 |
+| Phase 1 gzip level 9 bytes | 5,846,754 |
+| JSON analysis and generation parity | 484 / 484 each, 100% |
+| Non-skipped upstream expected-result membership | 474 / 474 each direction |
+| Coverage files / token occurrences | 34 / 1,403,201 |
+| Distinct per-file corpus inputs with exact set parity | 1,375,973 / 1,375,973 |
+| Raw grammar matches in corpus | 669,339 |
+| Matches with upstream foreign-word fallback | 805,022 (57.3704%) |
+| Loaded transducer, including embedded data and retained heap buffers | 19,311,356 bytes |
+| Raw lookup, one thread | 189,626 words/sec |
+| Public API, unweighted and without foreign fallback | 168,305 words/sec |
 
-These are all 484 JSON entries, including skipped entries; there are 477 distinct words and 417 distinct analysis inputs. The comparison covers raw transducer results, before upstream normalization, foreign-word fallback, or weighting. See [the saved results](tests/phase1-results.json).
+The benchmark used all 1,537 distinct tokens from `coverage/1.txt`, warmed the lookup, and repeated the file for at least one second per measurement on an AMD Ryzen AI 7 PRO 350 with pinned rustc 1.91.1. Raw lookup uses normalized words; the public API includes upstream normalization. Memory excludes per-lookup scratch space and allocator bookkeeping; it is not process RSS. The result is below the rough 200k words/sec target; no further optimization was attempted. Timing varies with system load.
 
-Observed dump format: tab-separated `source target analysis surface` arcs, `<>` for epsilon, and a single state number for a final state (no weight). Tags such as `<n>` and `<genitive>` are single symbols. Column 4 is the input side for analysis, confirmed against the SFST CLI. Column 3 is the input side for generation. Surface labels contain no grammatical tags. A scan of each side's epsilon-only graph found no cycles (134,654 analysis-epsilon arcs and 180,553 surface-epsilon arcs).
+Coverage counts include repeated tokens, as upstream’s coverage test does. Exact-set comparisons disable foreign fallback; the separate coverage calculation enables it. A two-line patch corrects doubled backslashes in two upstream Rust foreign-word regexes to match Python. Without that fix, raw lookup still matches every corpus input, but coverage drops to 56.7148%. This is an intentional behavior correction in `check_foreign_word`, with no signature change.
 
-The lookup and SFST both return `കേരളം<np><genitive>` for `കേരളത്തിന്റെ`, `വനം<n><pl><locative>` for `വനങ്ങളിൽ`, and no analysis for `computer`.
+The loader validates the header, lengths, UTF-8, CSR offsets, arc bounds, and ordering. It borrows the embedded binary and allocates three lookup tables. `OnceLock` shares one validated transducer across threads. Lookup uses binary search on surface-sorted arcs and an explicit DFS stack, avoiding call-stack exhaustion. Generation scans outgoing arcs. Longest-match tokenization preserves tags as single symbols; results are deduplicated.
 
-The binary uses a versioned header, length-prefixed UTF-8 symbols, a final-state bitset, CSR offsets, and 8-byte arcs (u32 target, u16 analysis, u16 surface), all integers little-endian. Arcs are sorted by state and surface symbol. The loader borrows the binary and allocates a symbol-reference table. The spike scans outgoing arcs; binary search is deferred.
+Robustness checks include every truncation of a small binary, invalid indices, epsilon cycles, reconverging paths, 10,000 generated byte buffers and mutated valid binaries, 10,000 arbitrary Unicode strings against the real API, and a 100,000-character consuming path. They use deterministic generators and add no test dependencies. They do not provide a coverage-guided fuzzer or shrinking framework.
 
-**Known format limitation:** the dump spells colon `\:`. SFST accepts `:` and emits `\:<punct>`; the spike currently matches the printed spelling literally. The extra punctuation probes record this mismatch. Colon escaping and CLI tokenization need resolving in Phase 2; the 484-entry parity claim does not cover this case.
+## Format and compatibility
 
-The spike also uses recursive DFS and path-local cycle detection. This preserves distinct outputs at reconverging states, unlike a global visited set. Productive epsilon cycles would be cut, and very long inputs can exhaust the stack. This is experimental code, not a validated arbitrary-input implementation.
+The observed tab-separated arc format is `source target analysis surface`. Epsilon is `<>`; final records contain only a state number. Tags such as `<n>` and `<genitive>` are single symbols. SFST escapes colon as `\:` in printed output but matches literal `:` in input; the backend now matches this behavior in both directions. Both sides’ epsilon-only graphs are acyclic in the pinned grammar. Path-local cycle detection preserves different outputs at reconverging paths. Productive epsilon cycles in a future grammar would be cut; revisit that policy if such cycles appear.
 
-Rust baseline: `rust-version = "1.85"`, required by upstream's edition 2024. Verification used pinned rustc 1.91.1, which matches [Meilisearch's current toolchain](https://github.com/meilisearch/meilisearch/blob/main/rust-toolchain.toml). Rust 1.85 itself has not been tested. The requested `fst-print --help; cargo --version` shell check exits successfully, but this SFST version treats `--help` as a filename; real dumping and CLI parity provide the functional check.
+The binary uses a versioned header, UTF-8 symbol table, final-state bitset, CSR offsets, and 8-byte arcs (u32 target, u16 analysis, u16 surface), all integers little-endian. There is no SFST binary decoder.
 
-## Re-sync and roadmap
+The minimum Rust version is 1.85, required by upstream’s edition 2024; both feature configurations have been tested on 1.85.0. The pinned Nix shell uses 1.91.1, matching Meilisearch’s toolchain checked during Phase 1. Runtime dependencies are only `regex` and `lazy_static`, with optional `clap` for the CLI.
 
-For an upstream update, explicitly choose the new tag, update the submodule pin and `spike.sh` commit check, then rerun the spike and review format and parity changes. Phase 2 will introduce the minimal patches against a copied `upstream/rust`, keeping new backend code here in `src/`.
+## Re-sync and follow-ups
 
-Phase 2 still needs the compatible API export, embedded OnceLock loader, optional CLI, complete coverage-corpus parity, robustness tests, and throughput/memory measurements. No property-test dependency has been added. Morpheme surface spans (`analyse_spans`), a normalization speedup, and charabia integration remain separate follow-ups. Publishing, tags, and opening anything on SMC's GitLab require explicit approval.
+Choose the new upstream tag explicitly, update the submodule pin and commit checks in `build.sh` and `spike.sh`, and review/rebase the small patch series. Keep new backend and build-tool code in `src/`. Rerun the complete pipeline and inspect parity, coverage, format, and performance results. `spike.sh` remains available for the smaller Phase 1 experiment; its historical results are in `tests/phase1-results.json` and `tests/phase1-att-observations.json`.
+
+Morpheme surface spans (`analyse_spans`), a normalization speedup, and charabia integration remain separate follow-ups. Publishing requires a release tag and explicit approval. No publish step is automated.

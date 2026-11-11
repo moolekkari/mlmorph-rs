@@ -1,0 +1,276 @@
+{
+  "files": [
+    {
+      "file": "1.txt",
+      "tokens": 2027,
+      "distinct": 1537,
+      "raw_analysed": 1652,
+      "analysed_with_foreign_fallback": 1667
+    },
+    {
+      "file": "10.txt",
+      "tokens": 321,
+      "distinct": 227,
+      "raw_analysed": 287,
+      "analysed_with_foreign_fallback": 297
+    },
+    {
+      "file": "11.txt",
+      "tokens": 392,
+      "distinct": 333,
+      "raw_analysed": 339,
+      "analysed_with_foreign_fallback": 346
+    },
+    {
+      "file": "12.txt",
+      "tokens": 416,
+      "distinct": 333,
+      "raw_analysed": 362,
+      "analysed_with_foreign_fallback": 369
+    },
+    {
+      "file": "13.txt",
+      "tokens": 3704,
+      "distinct": 2227,
+      "raw_analysed": 3185,
+      "analysed_with_foreign_fallback": 3307
+    },
+    {
+      "file": "14.txt",
+      "tokens": 865,
+      "distinct": 643,
+      "raw_analysed": 717,
+      "analysed_with_foreign_fallback": 773
+    },
+    {
+      "file": "15.txt",
+      "tokens": 5817,
+      "distinct": 3183,
+      "raw_analysed": 4977,
+      "analysed_with_foreign_fallback": 5092
+    },
+    {
+      "file": "16.txt",
+      "tokens": 2045,
+      "distinct": 1556,
+      "raw_analysed": 1695,
+      "analysed_with_foreign_fallback": 1755
+    },
+    {
+      "file": "17.txt",
+      "tokens": 799,
+      "distinct": 635,
+      "raw_analysed": 669,
+      "analysed_with_foreign_fallback": 698
+    },
+    {
+      "file": "18.txt",
+      "tokens": 5723,
+      "distinct": 4237,
+      "raw_analysed": 4651,
+      "analysed_with_foreign_fallback": 4753
+    },
+    {
+      "file": "19.txt",
+      "tokens": 419,
+      "distinct": 319,
+      "raw_analysed": 379,
+      "analysed_with_foreign_fallback": 381
+    },
+    {
+      "file": "2.txt",
+      "tokens": 3669,
+      "distinct": 2215,
+      "raw_analysed": 3075,
+      "analysed_with_foreign_fallback": 3089
+    },
+    {
+      "file": "20.txt",
+      "tokens": 480,
+      "distinct": 443,
+      "raw_analysed": 402,
+      "analysed_with_foreign_fallback": 406
+    },
+    {
+      "file": "21.txt",
+      "tokens": 1560,
+      "distinct": 1178,
+      "raw_analysed": 1304,
+      "analysed_with_foreign_fallback": 1330
+    },
+    {
+      "file": "22.txt",
+      "tokens": 1025,
+      "distinct": 809,
+      "raw_analysed": 834,
+      "analysed_with_foreign_fallback": 890
+    },
+    {
+      "file": "23.txt",
+      "tokens": 848,
+      "distinct": 688,
+      "raw_analysed": 676,
+      "analysed_with_foreign_fallback": 683
+    },
+    {
+      "file": "24.txt",
+      "tokens": 1402,
+      "distinct": 1090,
+      "raw_analysed": 1175,
+      "analysed_with_foreign_fallback": 1181
+    },
+    {
+      "file": "25.txt",
+      "tokens": 3663,
+      "distinct": 2363,
+      "raw_analysed": 3019,
+      "analysed_with_foreign_fallback": 3052
+    },
+    {
+      "file": "26.txt",
+      "tokens": 3520,
+      "distinct": 2204,
+      "raw_analysed": 2996,
+      "analysed_with_foreign_fallback": 3026
+    },
+    {
+      "file": "3.txt",
+      "tokens": 1842,
+      "distinct": 1271,
+      "raw_analysed": 1531,
+      "analysed_with_foreign_fallback": 1540
+    },
+    {
+      "file": "4.txt",
+      "tokens": 527,
+      "distinct": 433,
+      "raw_analysed": 438,
+      "analysed_with_foreign_fallback": 449
+    },
+    {
+      "file": "5.txt",
+      "tokens": 249,
+      "distinct": 212,
+      "raw_analysed": 214,
+      "analysed_with_foreign_fallback": 223
+    },
+    {
+      "file": "6.txt",
+      "tokens": 423,
+      "distinct": 317,
+      "raw_analysed": 364,
+      "analysed_with_foreign_fallback": 384
+    },
+    {
+      "file": "7.txt",
+      "tokens": 6632,
+      "distinct": 3488,
+      "raw_analysed": 5714,
+      "analysed_with_foreign_fallback": 5725
+    },
+    {
+      "file": "8.txt",
+      "tokens": 366,
+      "distinct": 303,
+      "raw_analysed": 309,
+      "analysed_with_foreign_fallback": 322
+    },
+    {
+      "file": "9.txt",
+      "tokens": 456,
+      "distinct": 381,
+      "raw_analysed": 365,
+      "analysed_with_foreign_fallback": 390
+    },
+    {
+      "file": "deshabhimani-all-unique-words.txt",
+      "tokens": 47906,
+      "distinct": 46668,
+      "raw_analysed": 33072,
+      "analysed_with_foreign_fallback": 35647
+    },
+    {
+      "file": "mlwiki-all-unique-words-00.txt",
+      "tokens": 200014,
+      "distinct": 198608,
+      "raw_analysed": 99180,
+      "analysed_with_foreign_fallback": 113360
+    },
+    {
+      "file": "mlwiki-all-unique-words-01.txt",
+      "tokens": 200017,
+      "distinct": 198492,
+      "raw_analysed": 95960,
+      "analysed_with_foreign_fallback": 110079
+    },
+    {
+      "file": "mlwiki-all-unique-words-02.txt",
+      "tokens": 200032,
+      "distinct": 198727,
+      "raw_analysed": 93688,
+      "analysed_with_foreign_fallback": 120809
+    },
+    {
+      "file": "mlwiki-all-unique-words-03.txt",
+      "tokens": 200036,
+      "distinct": 198585,
+      "raw_analysed": 100010,
+      "analysed_with_foreign_fallback": 108788
+    },
+    {
+      "file": "mlwiki-all-unique-words-04.txt",
+      "tokens": 200016,
+      "distinct": 198480,
+      "raw_analysed": 79576,
+      "analysed_with_foreign_fallback": 105259
+    },
+    {
+      "file": "mlwiki-all-unique-words-05.txt",
+      "tokens": 200020,
+      "distinct": 198794,
+      "raw_analysed": 94344,
+      "analysed_with_foreign_fallback": 103406
+    },
+    {
+      "file": "mlwiki-all-unique-words-06.txt",
+      "tokens": 105970,
+      "distinct": 104994,
+      "raw_analysed": 32180,
+      "analysed_with_foreign_fallback": 65546
+    }
+  ],
+  "total": {
+    "tokens": 1403201,
+    "distinct": 1375973,
+    "raw_analysed": 669339,
+    "analysed_with_foreign_fallback": 805022,
+    "coverage_percent": 57.3703981111758
+  },
+  "parity": {
+    "exact_coverage_inputs": 1375973,
+    "coverage_mismatches": 0,
+    "json_cases_each_direction": 484,
+    "upstream_non_skipped_cases_each_direction": 474
+  },
+  "benchmark": {
+    "corpus": "1.txt",
+    "distinct_words": 1537,
+    "cpu": "AMD Ryzen AI 7 PRO 350",
+    "rustc": "1.91.1",
+    "retained_transducer_bytes": 19311356,
+    "load_ms": 4.531,
+    "raw_words_per_second": 189626,
+    "public_api_words_per_second": 168305,
+    "public_api_flags": {
+      "weighted": false,
+      "foreign_word_check": false
+    },
+    "measurement": "one thread; warmed; each mode repeated for at least one second"
+  },
+  "validation": {
+    "nix_build_sh": "passed",
+    "minimum_rust": "1.85.0 tested with CLI on and off",
+    "robustness": "dependency-free deterministic generated tests; no property-test crate added",
+    "package_bytes": 5896134
+  }
+}

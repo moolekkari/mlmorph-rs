@@ -1,0 +1,201 @@
+From 456ed1298c324391a0b86a3a125837cf0aafdcfe Mon Sep 17 00:00:00 2001
+From: mlmorph-rs <mlmorph-rs@localhost>
+Date: Wed, 11 Nov 2026 14:47:47 +0530
+Subject: [PATCH] Use embedded pure-Rust lookup and make the CLI optional
+
+---
+ Cargo.toml       | 22 ++++++++++++++++------
+ src/analyser.rs  | 16 +++++++---------
+ src/generator.rs | 10 +++++-----
+ src/lib.rs       | 36 ++++++++++++++----------------------
+ 4 files changed, 42 insertions(+), 42 deletions(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index ef05e48..d6bc09a 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -1,26 +1,36 @@
+ [package]
+-name = "mlmorph"
++name = "mlmorph-rs"
+ version = "1.4.3"
+ edition = "2024"
++rust-version = "1.85"
++autobins = false
+ description = "Malayalam morphological analyzer"
+ license = "MIT"
+ authors = ["Santhosh Thottingal <santhosh.thottingal@gmail.com>"]
+ include = [
+   "src/**/*",
+-  "data/malayalam.a",
++  "data/malayalam.bin",
+   "Cargo.toml",
+   "README.md",
+   "LICENSE.md",
++  "tests/**/*.rs",
++  "tests/fixtures/**/*",
++  "examples/*.rs",
+ ]
+ 
++[lib]
++name = "mlmorph"
++
++[features]
++default = ["cli"]
++cli = ["dep:clap"]
++
+ [[bin]]
+ name = "mlmorph"
+ path = "src/main.rs"
++required-features = ["cli"]
+ 
+ [dependencies]
+-sfst = "0.2.0"
+ regex = "1.0"
+ lazy_static = "1.5.0"
+-clap = { version = "4.0", features = ["derive"] }
+-include_dir = "0.7.4"
+-tempfile = "3.21.0"
++clap = { version = "4.0", features = ["derive"], optional = true }
+diff --git a/src/analyser.rs b/src/analyser.rs
+index 5d47810..b1f8c2f 100644
+--- a/src/analyser.rs
++++ b/src/analyser.rs
+@@ -3,7 +3,7 @@ use crate::{
+     normalizer::normalize,
+ };
+ use regex::Regex;
+-use sfst::Sfst;
++use crate::transducer::Transducer;
+ use std::collections::HashMap;
+ 
+ lazy_static::lazy_static! {
+@@ -22,13 +22,13 @@ lazy_static::lazy_static! {
+ }
+ 
+ pub struct Analyser {
+-    sfst: Sfst,
++    transducer: &'static Transducer<'static>,
+ }
+ 
+ impl Analyser {
+     pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+-        let sfst = crate::create_sfst()?;
+-        Ok(Analyser { sfst })
++        let transducer = crate::transducer()?;
++        Ok(Analyser { transducer })
+     }
+ 
+     pub fn analyse(
+@@ -38,12 +38,10 @@ impl Analyser {
+         foreign_word_check: bool,
+     ) -> Result<Vec<AnalysisResult>, Box<dyn std::error::Error>> {
+         let word = normalize(word);
+-        let mut analysis_results = self.sfst.analyse(&word)?;
++        let mut analysis_results = self.transducer.analyse(&word);
+ 
+-        if analysis_results.is_empty() {
+-            if foreign_word_check && check_foreign_word(&word) == 1 {
+-                analysis_results = vec![format!("{}<fw>", word)];
+-            }
++        if analysis_results.is_empty() && foreign_word_check && check_foreign_word(&word) == 1 {
++            analysis_results = vec![format!("{}<fw>", word)];
+         }
+ 
+         if !weighted {
+diff --git a/src/generator.rs b/src/generator.rs
+index 0d9ba8b..12d3967 100644
+--- a/src/generator.rs
++++ b/src/generator.rs
+@@ -1,14 +1,14 @@
+ use crate::{GenerationResult, analyser::Analyser, normalizer::normalize};
+-use sfst::Sfst;
++use crate::transducer::Transducer;
+ 
+ pub struct Generator {
+-    sfst: Sfst,
++    transducer: &'static Transducer<'static>,
+ }
+ 
+ impl Generator {
+     pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+-        let sfst = crate::create_sfst()?;
+-        Ok(Generator { sfst })
++        let transducer = crate::transducer()?;
++        Ok(Generator { transducer })
+     }
+ 
+     pub fn generate(
+@@ -17,7 +17,7 @@ impl Generator {
+         weighted: bool,
+     ) -> Result<Vec<GenerationResult>, Box<dyn std::error::Error>> {
+         let token = normalize(token);
+-        let generated_results = self.sfst.generate(&token)?;
++        let generated_results = self.transducer.generate(&token);
+ 
+         if !weighted {
+             return Ok(generated_results.into_iter().map(|r| (r, 0)).collect());
+diff --git a/src/lib.rs b/src/lib.rs
+index b250c3d..4791c1e 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -1,6 +1,6 @@
+ //! # mlmorph
+ //!
+-//! A Rust implementation of the Malayalam Morphological Analyzer using Finite State Transducer technology.
++//! A Rust implementation of the Malayalam Morphological Analyzer using pure-Rust finite-state transducer lookup.
+ //!
+ //! ## Overview
+ //!
+@@ -98,8 +98,8 @@
+ //!
+ //! ## Requirements
+ //!
+-//! - **SFST Data**: The library requires the compiled Malayalam FST file (`data/malayalam.a`)
+-//! - **Rust**: Version 1.70 or higher
++//! - **Data**: The compiled lookup is embedded; no SFST runtime or temporary files are needed.
++//! - **Rust**: Version 1.85 or higher
+ 
+ pub mod analyser;
+ pub mod foreign_word_detector;
+@@ -111,26 +111,18 @@ pub use foreign_word_detector::check_foreign_word;
+ pub use generator::Generator;
+ pub use normalizer::normalize;
+ 
+-use include_dir::{Dir, include_dir};
+-use sfst::Sfst;
+-use std::fs;
+-use tempfile::TempDir;
++mod transducer;
++use std::sync::OnceLock;
++use transducer::Transducer;
+ 
+-pub fn create_sfst() -> Result<Sfst, Box<dyn std::error::Error>> {
+-    const DATA_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/data");
+-    let tmp_dir = TempDir::new()?;
+-    let file_path = tmp_dir.path().join("malayalam.a");
+-    let fsa_path = DATA_DIR
+-        .get_file("malayalam.a")
+-        .ok_or("Could not find malayalam.a")?;
+-    let body = fsa_path.contents();
+-    fs::write(&file_path, body)?;
+-    let sfst = Sfst::new(file_path.as_path().to_str().ok_or("Invalid file path")?)?;
+-
+-    // Keep the temp dir alive by leaking it (since SFST needs the file to persist)
+-    std::mem::forget(tmp_dir);
+-
+-    Ok(sfst)
++fn transducer() -> Result<&'static Transducer<'static>, Box<dyn std::error::Error>> {
++    static DATA: OnceLock<Result<Transducer<'static>, String>> = OnceLock::new();
++    DATA.get_or_init(|| {
++        Transducer::from_bytes(include_bytes!("../data/malayalam.bin"))
++            .map_err(|error| error.to_string())
++    })
++    .as_ref()
++    .map_err(|error| error.clone().into())
+ }
+ 
+ /// Represents a single morpheme in the morphological analysis.
+-- 
+2.56.0
+

@@ -1,0 +1,97 @@
+From 8afa2d19afc3ab8d3088d0066aea23509bc5e289 Mon Sep 17 00:00:00 2001
+From: mlmorph-rs <mlmorph-rs@localhost>
+Date: Wed, 11 Nov 2026 15:02:12 +0530
+Subject: [PATCH] Document the exported pure-Rust package
+
+---
+ README.md  | 27 ++++++++-------------------
+ src/lib.rs |  7 +------
+ 2 files changed, 9 insertions(+), 25 deletions(-)
+
+diff --git a/README.md b/README.md
+index cee20fb..5276407 100644
+--- a/README.md
++++ b/README.md
+@@ -1,4 +1,4 @@
+-# mlmorph
++# mlmorph-rs
+ 
+ A Rust implementation of the Malayalam Morphological Analyzer using Finite State Transducer technology.
+ 
+@@ -31,22 +31,16 @@ Add this to your `Cargo.toml`:
+ 
+ ```toml
+ [dependencies]
+-mlmorph = "0.1.0"
++mlmorph = { package = "mlmorph-rs", version = "1.4.3", default-features = false }
+ ```
+ 
+ ### As a CLI Tool
+ 
+ ```bash
+-cargo install mlmorph
++cargo install mlmorph-rs
+ ```
+ 
+-Or build from source:
+-
+-```bash
+-git clone https://github.com/smc/mlmorph
+-cd mlmorph/rust
+-cargo build --release
+-```
++The optional `cli` feature is enabled by default and installs the `mlmorph` binary. This package embeds a pure-Rust lookup generated from SMC’s MIT grammar; SFST is a build tool only. Runtime use needs no C++ library, SFST installation, or temporary files.
+ 
+ ## Usage
+ 
+@@ -248,17 +242,12 @@ pub fn check_foreign_word(word: &str) -> i32;
+ 
+ ## Requirements
+ 
+-- **SFST Data**: The library requires the compiled Malayalam FST file (`data/malayalam.a`)
+-- **Rust**: Version 1.70 or higher
++- **Data**: The compiled lookup is embedded in the crate.
++- **Rust**: Version 1.85 or higher
+ 
+ ## Performance
+ 
+-The Rust implementation provides significant performance improvements over the Python version:
+-
+-- **Analysis**: ~10x faster than Python implementation
+-- **Generation**: ~8x faster than Python implementation
+-- **Memory**: Lower memory footprint
+-- **Concurrency**: Safe for concurrent use across threads
++Performance and full-corpus parity are measured by the enclosing mlmorph-rs build pipeline.
+ 
+ ## Compatibility
+ 
+@@ -270,7 +259,7 @@ Contributions are welcome! Please see the main [mlmorph project](https://gitlab.
+ 
+ ## License
+ 
+-This project is licensed under the MIT License - see the LICENSE file for details.
++This project is licensed under the MIT License - see LICENSE.md for details.
+ 
+ ## Citation
+ 
+diff --git a/src/lib.rs b/src/lib.rs
+index 4791c1e..e273317 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -89,12 +89,7 @@
+ //!
+ //! ## Performance
+ //!
+-//! The Rust implementation provides significant performance improvements over the Python version:
+-//!
+-//! - **Analysis**: ~10x faster than Python implementation
+-//! - **Generation**: ~8x faster than Python implementation
+-//! - **Memory**: Lower memory footprint
+-//! - **Concurrency**: Safe for concurrent use across threads
++//! Pure-Rust lookup uses embedded data shared across threads.
+ //!
+ //! ## Requirements
+ //!
+-- 
+2.56.0
+

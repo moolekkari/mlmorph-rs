@@ -1,0 +1,15 @@
+name: Build and parity
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: true
+      - uses: cachix/install-nix-action@0a0da11f76bfa89d9193817a437868f94cbf82dc # v31
+        with:
+          extra_nix_config: "experimental-features = nix-command flakes"
+      - run: nix develop -c ./build.sh

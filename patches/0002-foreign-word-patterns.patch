@@ -1,0 +1,27 @@
+From 5a0b1f8bbda36445c9f191c033cfcf5f1f7b6010 Mon Sep 17 00:00:00 2001
+From: mlmorph-rs <mlmorph-rs@localhost>
+Date: Wed, 11 Nov 2026 14:52:59 +0530
+Subject: [PATCH] Match Python foreign-word patterns without double escaping
+
+---
+ src/foreign_word_detector.rs | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/foreign_word_detector.rs b/src/foreign_word_detector.rs
+index 42fccda..f16b45a 100644
+--- a/src/foreign_word_detector.rs
++++ b/src/foreign_word_detector.rs
+@@ -1,8 +1,8 @@
+ use regex::Regex;
+ 
+ const ENGLISH_PATTERNS: &[&str] = &[
+-    r"\\S+[അ-ഔ]\\S+",
+-    r"\\S+റ്റ്\\S+",
++    r"\S+[അ-ഔ]\S+",
++    r"\S+റ്റ്\S+",
+     r"^ജെ",
+     r"^ട",
+     r"^ഡ",
+-- 
+2.56.0
+
