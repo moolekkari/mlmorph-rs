@@ -1,0 +1,76 @@
+{
+  "analyse": {
+    "cases": 484,
+    "distinct_inputs": 477,
+    "exact_matches": 484,
+    "parity_percent": 100.0,
+    "analysis_count": 1813,
+    "upstream_expected_membership": 474,
+    "upstream_non_skipped_cases": 474,
+    "mismatches": []
+  },
+  "generate": {
+    "cases": 484,
+    "distinct_inputs": 417,
+    "exact_matches": 484,
+    "parity_percent": 100.0,
+    "analysis_count": 1413,
+    "upstream_expected_membership": 474,
+    "upstream_non_skipped_cases": 474,
+    "mismatches": []
+  },
+  "examples": {
+    "കേരളത്തിന്റെ": [
+      "കേരളം<n><genitive>",
+      "കേരളം<np><genitive>"
+    ],
+    "വനങ്ങളിൽ": [
+      "വനം<n><pl><locative>"
+    ],
+    "computer": []
+  },
+  "format_probes": [
+    {
+      "input": ":",
+      "sfst": [
+        "\\:<punct>"
+      ],
+      "rust": []
+    },
+    {
+      "input": "\\:",
+      "sfst": [],
+      "rust": [
+        "\\:<punct>"
+      ]
+    },
+    {
+      "input": "<",
+      "sfst": [
+        "<<punct>"
+      ],
+      "rust": [
+        "<<punct>"
+      ]
+    },
+    {
+      "input": ">",
+      "sfst": [
+        "><punct>"
+      ],
+      "rust": [
+        "><punct>"
+      ]
+    }
+  ],
+  "transducer": {
+    "states": 606431,
+    "arcs": 2099458,
+    "symbols_including_epsilon": 207
+  },
+  "sizes_bytes": {
+    "att": 44906468,
+    "binary": 19299644,
+    "gzip_9": 5846754
+  }
+}

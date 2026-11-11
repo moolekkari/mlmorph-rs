@@ -1,0 +1,18 @@
+[package]
+name = "mlmorph-spike"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+publish = false
+
+[lib]
+path = "src/transducer.rs"
+
+[[bin]]
+name = "att2bin"
+path = "src/bin/att2bin.rs"
+
+[[bin]]
+name = "spike-lookup"
+path = "src/bin/spike-lookup.rs"
