@@ -2,10 +2,15 @@
 
 An MIT-licensed, pure-Rust packaging of [SMC’s mlmorph](https://gitlab.com/smc/mlmorph), by Santhosh Thottingal. SFST compiles the upstream MIT grammar during the build and supplies independent test fixtures. No SFST implementation, C++ library, or compiled SFST transducer is linked or shipped in the crate.
 
-The exported package is named `mlmorph-rs`; its library remains `mlmorph`. `Analyser`, `Generator`, `normalize`, and `check_foreign_word` retain their public signatures. `create_sfst()` is removed. The default `cli` feature installs the `mlmorph` binary; disable default features for library-only use. This package has not been published.
+The exported package is named `mlmorph-rs`; its library remains `mlmorph`. `Analyser`, `Generator`, `normalize`, and `check_foreign_word` retain their public signatures. `create_sfst()` is removed. The default `cli` feature installs the `mlmorph` binary; disable default features for library-only use.
+
+Version **1.4.3** is published: [crates.io](https://crates.io/crates/mlmorph-rs/1.4.3) · [API documentation](https://docs.rs/mlmorph-rs/1.4.3/mlmorph/) · [GitHub release and archive](https://github.com/moolekkari/mlmorph-rs/releases/tag/v1.4.3).
+
+Add this to your `Cargo.toml`:
 
 ```toml
-mlmorph = { package = "mlmorph-rs", path = "./out", default-features = false }
+[dependencies]
+mlmorph = { package = "mlmorph-rs", version = "1.4.3", default-features = false }
 ```
 
 ```rust
@@ -15,6 +20,8 @@ let analyses = analyser.analyse("കേരളത്തിന്റെ", false, f
 ```
 
 The last argument disables the upstream foreign-word fallback, giving strict grammar results. With the fallback enabled, unknown foreign words can return a `<fw>` analysis.
+
+To install the CLI, run `cargo install mlmorph-rs --version 1.4.3`. For local development against an export, replace `version = "1.4.3"` with `path = "./out"` in the dependency above.
 
 ## Build and verify
 

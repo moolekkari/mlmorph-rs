@@ -1,0 +1,26 @@
+From 08dbc5c787686d8d645d9a440c7a0f40b6fd9196 Mon Sep 17 00:00:00 2001
+From: mlmorph-rs <mlmorph-rs@localhost>
+Date: Wed, 11 Nov 2026 23:58:14 +0530
+Subject: [PATCH] Add repository and API documentation metadata
+
+---
+ Cargo.toml | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index b3d904e..f5287b3 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -6,6 +6,9 @@ rust-version = "1.85"
+ autobins = false
+ description = "Malayalam morphological analyzer"
+ license = "MIT"
++repository = "https://github.com/moolekkari/mlmorph-rs"
++homepage = "https://github.com/moolekkari/mlmorph-rs"
++documentation = "https://docs.rs/mlmorph-rs/latest/mlmorph/"
+ authors = ["Santhosh Thottingal <santhosh.thottingal@gmail.com>"]
+ include = [
+   "src/**/*",
+-- 
+2.56.0
+
